@@ -5,16 +5,29 @@ const {createNotification} = require('./notificationcontroller')
 
 
 const usersign = async(req,res)=>{
-    const {name,email,phone,password,role} = req.body
+    try{
+        const {name,email,phone,password,role} = req.body
 
-    const hashpass = await bcrypt.hash(password,10)
+        if(!/^[0-9]{10}$/.test(phone)){
+            return res.status(400).json("Please enter a valid 10-digit phone number")
+        }
 
-    const data = await usermodel.create({
-        name,email,phone,password:hashpass,role
-    })
+        const existing = await usermodel.findOne({email})
+        if(existing){
+            return res.status(400).json("An account with this email already exists")
+        }
 
-    res.json("account created")
+        const hashpass = await bcrypt.hash(password,10)
 
+        const data = await usermodel.create({
+            name,email,phone,password:hashpass,role
+        })
+
+        res.json("account created")
+    }catch(err){
+        console.log(err)
+        res.status(500).json("Something went wrong, please try again")
+    }
 }
 
 

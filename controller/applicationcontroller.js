@@ -1,10 +1,16 @@
 const applicationmodel = require('../model/ApplicationSchema')
 const jobmodel = require('../model/JobSchema')
+const usermodel = require('../model/UserSchema')
 const {createNotification} = require('./notificationcontroller')
 
 // POST /applications  (candidate only)  body: { jobId }
 const applyToJob = async(req,res)=>{
     const {jobId} = req.body
+
+    const candidate = await usermodel.findById(req.user.userid)
+    if(!candidate.resume){
+        return res.status(400).json("Please upload your resume before applying")
+    }
 
     const already = await applicationmodel.findOne({job:jobId, candidate:req.user.userid})
     if(already){
@@ -35,7 +41,7 @@ const getMyApplications = async(req,res)=>{
 // GET /applications/job/:jobId  (recruiter only) — everyone who applied to one of their jobs
 const getApplicationsForJob = async(req,res)=>{
     const data = await applicationmodel.find({job:req.params.jobId})
-        .populate("candidate", "name email skills experience")
+        .populate("candidate", "name email skills experience resume profilePhoto")
     res.json(data)
 }
 
@@ -65,7 +71,7 @@ const getApplicationsForRecruiter = async(req,res)=>{
 
     const data = await applicationmodel.find({job:{$in:jobIds}})
         .populate("job","title company")
-        .populate("candidate","name email skills experience")
+        .populate("candidate","name email skills experience resume profilePhoto")
         .sort({createdAt:-1})
 
     res.json(data)
