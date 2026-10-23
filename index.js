@@ -5,25 +5,27 @@ dns.setServers([
   "1.1.1.1"
 ]);
 
-
-const express =  require('express')
+const express = require('express');
 const app = express();
-require('./config/config')
-const userrouter = require('./router/userrouter')
-const jobrouter = require('./router/jobrouter')
-const applicationrouter = require('./router/applicationrouter')
-const messagerouter = require('./router/messagerouter')
-const contactrouter = require('./router/contactrouter')
-const notificationrouter = require('./router/notificationrouter')
-const cors = require('cors')
+require('./config/config');
+const userrouter = require('./router/userrouter');
+const jobrouter = require('./router/jobrouter');
+const applicationrouter = require('./router/applicationrouter');
+const messagerouter = require('./router/messagerouter');
+const contactrouter = require('./router/contactrouter');
+const notificationrouter = require('./router/notificationrouter');
+const cors = require('cors');
 
+// CORS ko properly enable karo taaki Vercel ka koi bhi link block na ho
+app.use(cors({
+  origin: "*", // Filhal sabhi ke liye khol do taaki error na aaye
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
-
-
-
-app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(__dirname + '/uploads'));  // resume files yahan se serve honge
+
 app.use(userrouter);
 app.use(jobrouter);
 app.use(applicationrouter);
@@ -31,5 +33,44 @@ app.use(messagerouter);
 app.use(contactrouter);
 app.use(notificationrouter);
 
+// Render ke liye PORT ko dynamic banao!
+const PORT = process.env.PORT || 6100;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-app.listen(6100,()=>console.log("server running on port 6100"))
+
+
+// const dns = require("dns");
+
+// dns.setServers([
+//   "8.8.8.8",
+//   "1.1.1.1"
+// ]);
+
+
+// const express =  require('express')
+// const app = express();
+// require('./config/config')
+// const userrouter = require('./router/userrouter')
+// const jobrouter = require('./router/jobrouter')
+// const applicationrouter = require('./router/applicationrouter')
+// const messagerouter = require('./router/messagerouter')
+// const contactrouter = require('./router/contactrouter')
+// const notificationrouter = require('./router/notificationrouter')
+// const cors = require('cors')
+
+
+
+
+
+// app.use(cors());
+// app.use(express.json());
+// app.use('/uploads', express.static(__dirname + '/uploads'));  // resume files yahan se serve honge
+// app.use(userrouter);
+// app.use(jobrouter);
+// app.use(applicationrouter);
+// app.use(messagerouter);
+// app.use(contactrouter);
+// app.use(notificationrouter);
+
+
+// app.listen(6100,()=>console.log("server running on port 6100"))
